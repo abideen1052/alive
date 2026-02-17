@@ -1,19 +1,12 @@
-/**
- * Full-screen modal for viewing gallery items
- * Features: carousel navigation, image zoom, no video zoom
- */
-
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   Modal,
   View,
-  Image,
   TouchableOpacity,
   Text,
   StyleSheet,
   Dimensions,
   ActivityIndicator,
-  PanResponder,
   Animated,
 } from 'react-native';
 import Video from 'react-native-video';
@@ -23,8 +16,8 @@ import { useMediaLoader } from '../hooks/useMediaLoader';
 
 interface FullScreenModalProps {
   visible: boolean;
-  items: GalleryItem[]; // All gallery items in order
-  initialIndex: number; // Which item to start with
+  items: GalleryItem[];
+  initialIndex: number;
   onClose: () => void;
 }
 
@@ -81,6 +74,13 @@ const FullScreenModal: React.FC<FullScreenModalProps> = ({
   onClose,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+
+  // Sync index when modal opens
+  useEffect(() => {
+    if (visible) {
+      setCurrentIndex(initialIndex);
+    }
+  }, [visible, initialIndex]);
 
   const handlePrevious = useCallback(() => {
     if (currentIndex > 0) {
@@ -178,7 +178,7 @@ const VideoContent: React.FC<{ item: GalleryItem }> = ({ item }) => {
           style={styles.fullVideo}
           controls={true}
           posterResizeMode="contain"
-          poster={thumbnailUrl}
+          poster={thumbnailUrl || undefined}
           resizeMode="contain"
         />
       )}
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   },
   closeText: {
     color: '#fff',
-    fontSize: 28,
+    fontSize: 22,
     fontWeight: 'bold',
   },
   navButton: {
@@ -259,6 +259,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 40,
     fontWeight: 'bold',
+    marginBottom: 20,
   },
   counter: {
     position: 'absolute',

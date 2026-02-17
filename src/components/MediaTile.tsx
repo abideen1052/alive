@@ -102,45 +102,36 @@ const MediaTile = React.memo(
         onPress={onPress}
         activeOpacity={0.9}
       >
-        {/* Poster (always visible initially) */}
-        {!videoReady && thumbnailUrl && (
-          <Image
-            source={{ uri: thumbnailUrl }}
-            style={{
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-              zIndex: 1,
-            }}
-            resizeMode="cover"
-          />
-        )}
+        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          {/* Poster (always visible initially) */}
+          {!videoReady && thumbnailUrl && (
+            <Image
+              source={{ uri: thumbnailUrl }}
+              style={StyleSheet.absoluteFill}
+              resizeMode="cover"
+            />
+          )}
 
-        {/* Video (appears when ready) */}
-        {!videoFailed && imageUrl && (
-          <Video
-            source={{ uri: imageUrl }}
-            style={{
-              width: '100%',
-              height: '100%',
-              backgroundColor: '#000',
-            }}
-            controls={false}
-            paused={!isVisible} // CRITICAL: Pause when not visible
-            muted={true}
-            repeat={true}
-            resizeMode="cover"
-            poster={thumbnailUrl}
-            onLoad={handleVideoLoad}
-            onError={handleVideoError}
-          />
-        )}
+          {/* Video (appears when ready) */}
+          {!videoFailed && imageUrl && (
+            <Video
+              source={{ uri: imageUrl }}
+              style={StyleSheet.absoluteFill}
+              controls={false}
+              paused={!isVisible} // CRITICAL: Pause when not visible
+              muted={true}
+              repeat={true}
+              resizeMode="cover"
+              poster={thumbnailUrl || undefined}
+              onLoad={handleVideoLoad}
+              onError={handleVideoError}
+            />
+          )}
+        </View>
 
         {/* Error Overlay */}
         {videoFailed && (
-          <View
-            style={[styles.errorContainer, { width: '100%', height: '100%' }]}
-          >
+          <View style={[styles.errorContainer, StyleSheet.absoluteFill]}>
             <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
               <Text style={styles.retryText}>Tap to Retry</Text>
             </TouchableOpacity>

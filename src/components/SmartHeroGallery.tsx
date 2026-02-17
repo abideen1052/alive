@@ -37,17 +37,29 @@ const SmartHeroGallery: React.FC<SmartHeroGalleryProps> = ({ onItemPress }) => {
     return gallery.length > 0 ? buildPages(gallery) : [];
   }, [gallery]);
 
+  // Flattened reordered items for the modal to match visual flow
+  const displayItems = useMemo(() => {
+    const items: GalleryItem[] = [];
+    pages.forEach(p => {
+      if (p.left) items.push(p.left);
+      if (p.rightTop) items.push(p.rightTop);
+      if (p.rightBottom) items.push(p.rightBottom);
+    });
+    return items;
+  }, [pages]);
+
   // Handle item press - open fullscreen modal
   const handleItemPress = useCallback(
     (item: GalleryItem) => {
-      const globalIndex = gallery.findIndex(g => g._id === item._id);
-      if (globalIndex !== -1) {
-        setSelectedItemIndex(globalIndex);
+      // Find index in DISPLAY order, not original order
+      const index = displayItems.findIndex(g => g._id === item._id);
+      if (index !== -1) {
+        setSelectedItemIndex(index);
         setFullScreenVisible(true);
         onItemPress?.(item);
       }
     },
-    [gallery, onItemPress],
+    [displayItems, onItemPress],
   );
 
   // Handle viewable items changed - track current page
@@ -165,7 +177,7 @@ const SmartHeroGallery: React.FC<SmartHeroGalleryProps> = ({ onItemPress }) => {
       {/* FullScreen Modal */}
       <FullScreenModal
         visible={fullScreenVisible}
-        items={gallery}
+        items={displayItems}
         initialIndex={selectedItemIndex}
         onClose={() => setFullScreenVisible(false)}
       />
