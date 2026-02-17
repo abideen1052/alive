@@ -22,25 +22,27 @@ export const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 // Gallery Dimensions
 export const PAGE_WIDTH = SCREEN_WIDTH;
-export const PAGE_HEIGHT = SCREEN_HEIGHT * 0.65; // 65% of screen height
+export const PAGE_HEIGHT = SCREEN_HEIGHT;
 
-export const LEFT_COLUMN_WIDTH = PAGE_WIDTH / 2;
-export const RIGHT_COLUMN_WIDTH = PAGE_WIDTH / 2;
-export const RIGHT_TILE_HEIGHT = PAGE_HEIGHT / 2;
+// UI Constants
+export const BORDER_RADIUS = 12;
+export const PADDING = 10; // Spacing around the screen
+export const TILE_GAP = 8; // Spacing between tiles
+
+export const LEFT_COLUMN_WIDTH = (PAGE_WIDTH - PADDING * 2 - TILE_GAP) / 2;
+export const RIGHT_COLUMN_WIDTH = (PAGE_WIDTH - PADDING * 2 - TILE_GAP) / 2;
+export const LEFT_TILE_HEIGHT = PAGE_HEIGHT - PADDING * 2;
+export const RIGHT_TILE_HEIGHT = (PAGE_HEIGHT - PADDING * 2 - TILE_GAP) / 2;
 
 // Lookhead for video selection (preserve order)
 export const VIDEO_SELECTION_LOOKAHEAD = 12;
 
 // Colors
 export const COLORS = {
-  background: '#fff',
-  text: '#000',
-  textLight: '#666',
-  error: '#ff3333',
-  border: '#eee',
-  overlay: 'rgba(0,0,0,0.7)',
+  background: '#fcfcfc',
+  text: '#1a1a1a',
+  textLight: '#8e8e93',
+  error: '#ff3b30',
+  border: '#e5e5ea',
+  overlay: 'rgba(0,0,0,0.85)',
 };
-
-// UI Constants
-export const BORDER_RADIUS = 8;
-export const PADDING = 16;

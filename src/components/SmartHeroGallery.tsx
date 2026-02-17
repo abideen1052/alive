@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { GalleryItem, PageLayout } from '../types/gallery';
-import { COLORS } from '../constants';
+import { COLORS, PAGE_WIDTH } from '../constants';
 import { useGalleryAPI } from '../hooks/useGalleryAPI';
 import { buildPages } from '../utils/buildPages';
 import GalleryPage from './GalleryPage';
@@ -53,9 +53,13 @@ const SmartHeroGallery: React.FC<SmartHeroGalleryProps> = ({ onItemPress }) => {
   // Handle viewable items changed - track current page
   const handleViewableItemsChanged = useCallback(({ viewableItems }: any) => {
     if (viewableItems.length > 0) {
-      setCurrentPageIndex(viewableItems[0].index);
+      setCurrentPageIndex(viewableItems[0].index ?? 0);
     }
   }, []);
+
+  const viewabilityConfig = useRef({
+    itemVisiblePercentThreshold: 25,
+  }).current;
 
   // Handle nudge button press - scroll to next page
   const handleNudgePress = useCallback(() => {
@@ -126,18 +130,22 @@ const SmartHeroGallery: React.FC<SmartHeroGalleryProps> = ({ onItemPress }) => {
         horizontal={true}
         pagingEnabled={true}
         snapToAlignment="start"
-        decelerationRate="fast"
+        snapToInterval={PAGE_WIDTH}
+        decelerationRate={0.8}
+        disableIntervalMomentum={true}
         scrollEventThrottle={16}
+        getItemLayout={(_, index) => ({
+          length: PAGE_WIDTH,
+          offset: PAGE_WIDTH * index,
+          index,
+        })}
         maxToRenderPerBatch={2}
         updateCellsBatchingPeriod={50}
         initialNumToRender={3}
-        windowSize={10}
-        removeClippedSubviews={true}
+        windowSize={5}
+        removeClippedSubviews={false}
         onViewableItemsChanged={handleViewableItemsChanged}
-        viewabilityConfig={{
-          itemVisiblePercentThreshold: 60,
-          minimumViewTime: 300,
-        }}
+        viewabilityConfig={viewabilityConfig}
         showsHorizontalScrollIndicator={false}
       />
 
