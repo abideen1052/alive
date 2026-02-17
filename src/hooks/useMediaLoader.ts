@@ -1,9 +1,3 @@
-/**
- * Progressive media loading hook
- * Images: preview → processed → original
- * Videos: poster (all variants) + video URL
- */
-
 import { useState, useEffect, useCallback } from 'react';
 import { Image } from 'react-native';
 import { GalleryItem, MediaLoadState } from '../types/gallery';
@@ -11,6 +5,7 @@ import { getImageUrl, getVideoUrl, getThumbnailUrl } from '../utils/cdnUtils';
 
 interface UseMediaLoaderResult extends MediaLoadState {
   retry: () => void;
+  fallbackToOriginal: () => void;
 }
 
 export function useMediaLoader(item: GalleryItem): UseMediaLoaderResult {
@@ -21,7 +16,6 @@ export function useMediaLoader(item: GalleryItem): UseMediaLoaderResult {
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
-    // Reset state
     setImageUrl(null);
     setThumbnailUrl(null);
     setIsLoading(true);
@@ -32,50 +26,44 @@ export function useMediaLoader(item: GalleryItem): UseMediaLoaderResult {
     } else {
       loadVideo();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item._id, retryCount]);
 
-  // IMAGE LOADING CHAIN
   const loadImage = async () => {
     try {
-      // Step 1: Try preview (fire and forget)
       const previewUrl = getImageUrl(item.src, 'preview');
-      Image.prefetch(previewUrl).catch(() => {
-        // Preview failed, continue
-      });
+      Image.prefetch(previewUrl).catch(() => {});
 
-      // Step 2: Load processed
       const processedUrl = getImageUrl(item.src, 'processed');
       try {
         await Image.prefetch(processedUrl);
         setImageUrl(processedUrl);
         setIsLoading(false);
         setError(null);
-        return; // Success!
-      } catch (err) {
-        // Processed failed, try original
+        return;
+      } catch {
+        console.log('Processed failed, try original');
       }
 
-      // Step 3: Fallback to original
+      //  Fallback to original
       const originalUrl = getImageUrl(item.src, 'original');
       try {
         await Image.prefetch(originalUrl);
         setImageUrl(originalUrl);
         setIsLoading(false);
         setError(null);
-      } catch (err) {
+      } catch {
         setError('Failed to load image');
         setIsLoading(false);
       }
-    } catch (err) {
+    } catch {
       setError('Unexpected error');
       setIsLoading(false);
     }
   };
 
-  // VIDEO LOADING CHAIN
   const loadVideo = async () => {
     try {
-      // Load poster first (try all variants)
       const posterUrls = [
         getThumbnailUrl(item.src, 'preview'),
         getThumbnailUrl(item.src, 'processed'),
@@ -86,24 +74,25 @@ export function useMediaLoader(item: GalleryItem): UseMediaLoaderResult {
         try {
           await Image.prefetch(posterUrl);
           setThumbnailUrl(posterUrl);
-          break; // Stop at first success
-        } catch (err) {
-          // Try next
+          break;
+        } catch {
           continue;
         }
       }
-
-      // Set video URL (don't wait for it)
-      const videoUrl = getVideoUrl(item.src, 'processed');
-      setImageUrl(videoUrl);
-
+      setImageUrl(getVideoUrl(item.src, 'processed'));
       setIsLoading(false);
       setError(null);
-    } catch (err) {
+    } catch {
       setError('Failed to load video');
       setIsLoading(false);
     }
   };
+
+  const fallbackToOriginal = useCallback(() => {
+    if (item.type === 'video') {
+      setImageUrl(getVideoUrl(item.src, 'original'));
+    }
+  }, [item.src, item.type]);
 
   const retry = useCallback(() => {
     setRetryCount(prev => prev + 1);
@@ -115,5 +104,6 @@ export function useMediaLoader(item: GalleryItem): UseMediaLoaderResult {
     isLoading,
     error,
     retry,
+    fallbackToOriginal,
   };
 }

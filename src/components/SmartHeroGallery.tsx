@@ -1,8 +1,3 @@
-/**
- * Main gallery component
- * Orchestrates everything: API, pages, scroll, modal, etc.
- */
-
 import React, { useState, useCallback, useRef, useMemo } from 'react';
 import {
   View,
@@ -48,10 +43,9 @@ const SmartHeroGallery: React.FC<SmartHeroGalleryProps> = ({ onItemPress }) => {
     return items;
   }, [pages]);
 
-  // Handle item press - open fullscreen modal
   const handleItemPress = useCallback(
     (item: GalleryItem) => {
-      // Find index in DISPLAY order, not original order
+      // Find index in display order, not original order
       const index = displayItems.findIndex(g => g._id === item._id);
       if (index !== -1) {
         setSelectedItemIndex(index);
@@ -62,7 +56,6 @@ const SmartHeroGallery: React.FC<SmartHeroGalleryProps> = ({ onItemPress }) => {
     [displayItems, onItemPress],
   );
 
-  // Handle viewable items changed - track current page
   const handleViewableItemsChanged = useCallback(({ viewableItems }: any) => {
     if (viewableItems.length > 0) {
       setCurrentPageIndex(viewableItems[0].index ?? 0);
@@ -73,7 +66,6 @@ const SmartHeroGallery: React.FC<SmartHeroGalleryProps> = ({ onItemPress }) => {
     itemVisiblePercentThreshold: 25,
   }).current;
 
-  // Handle nudge button press - scroll to next page
   const handleNudgePress = useCallback(() => {
     if (currentPageIndex < pages.length - 1) {
       flatListRef.current?.scrollToIndex({
@@ -83,7 +75,6 @@ const SmartHeroGallery: React.FC<SmartHeroGalleryProps> = ({ onItemPress }) => {
     }
   }, [currentPageIndex, pages.length]);
 
-  // Handle page indicator press - jump to page
   const handlePageIndicatorPress = useCallback((pageIndex: number) => {
     flatListRef.current?.scrollToIndex({
       index: pageIndex,
@@ -91,7 +82,6 @@ const SmartHeroGallery: React.FC<SmartHeroGalleryProps> = ({ onItemPress }) => {
     });
   }, []);
 
-  // LOADING STATE
   if (loading) {
     return (
       <View style={styles.centerContainer}>
@@ -101,7 +91,6 @@ const SmartHeroGallery: React.FC<SmartHeroGalleryProps> = ({ onItemPress }) => {
     );
   }
 
-  // ERROR STATE
   if (error) {
     return (
       <View style={styles.centerContainer}>
@@ -113,7 +102,6 @@ const SmartHeroGallery: React.FC<SmartHeroGalleryProps> = ({ onItemPress }) => {
     );
   }
 
-  // EMPTY STATE
   if (pages.length === 0) {
     return (
       <View style={styles.centerContainer}>
@@ -124,7 +112,6 @@ const SmartHeroGallery: React.FC<SmartHeroGalleryProps> = ({ onItemPress }) => {
 
   return (
     <View style={styles.container}>
-      {/* Gallery FlatList */}
       <FlatList
         ref={flatListRef}
         data={pages}
@@ -161,20 +148,17 @@ const SmartHeroGallery: React.FC<SmartHeroGalleryProps> = ({ onItemPress }) => {
         showsHorizontalScrollIndicator={false}
       />
 
-      {/* Nudge on Page 1 */}
       <ScrollNudge
         visible={currentPageIndex === 0}
         onPress={handleNudgePress}
       />
 
-      {/* Page Indicator */}
       <PageIndicator
         currentPage={currentPageIndex}
         totalPages={pages.length}
         onPagePress={handlePageIndicatorPress}
       />
 
-      {/* FullScreen Modal */}
       <FullScreenModal
         visible={fullScreenVisible}
         items={displayItems}

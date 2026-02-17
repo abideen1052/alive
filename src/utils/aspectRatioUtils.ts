@@ -1,25 +1,13 @@
-/**
- * Aspect ratio utilities for video selection
- */
-
 import { GalleryItem } from '../types/gallery';
 import { TARGET_VIDEO_RATIO } from '../constants';
 
-/**
- * Calculate how far a video's aspect ratio is from target (9:16)
- * Lower = closer to target
- */
 export function getAspectRatioDiff(aspectRatio: number | undefined): number {
   if (!aspectRatio || aspectRatio <= 0) {
-    return Infinity; // Undefined ratios are not candidates
+    return Infinity;
   }
   return Math.abs(aspectRatio - TARGET_VIDEO_RATIO);
 }
 
-/**
- * Compare two videos and return the one closest to 9:16 ratio
- * Tiebreaker: if equal distance, return the one appearing first
- */
 export function selectBestPortraitVideo(
   video1: GalleryItem,
   video2: GalleryItem,
@@ -37,9 +25,6 @@ export function selectBestPortraitVideo(
   return index1 < index2 ? video1 : video2;
 }
 
-/**
- * Find best video in a list for a specific page
- */
 export function findBestVideoInWindow(
   videos: Array<{ item: GalleryItem; index: number }>,
 ): { item: GalleryItem; index: number } | null {

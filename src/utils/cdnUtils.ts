@@ -1,16 +1,9 @@
-/**
- * Build CDN URLs for images and videos with proper prefixes
- */
-
 import {
   CDN_BASE,
   PROCESSED_MOBILE_PREFIX,
   PREVIEW_PREFIX,
 } from '../constants';
 
-/**
- * Build image URL with fallback options
- */
 export function getImageUrl(
   src: string,
   type: 'preview' | 'processed' | 'original',
@@ -27,9 +20,6 @@ export function getImageUrl(
   }
 }
 
-/**
- * Build video URL
- */
 export function getVideoUrl(
   src: string,
   type: 'processed' | 'original',
@@ -44,10 +34,6 @@ export function getVideoUrl(
   }
 }
 
-/**
- * Build thumbnail URL for video poster
- * Thumbnail filename = src + ".webp"
- */
 export function getThumbnailUrl(
   src: string,
   type: 'preview' | 'processed' | 'original',

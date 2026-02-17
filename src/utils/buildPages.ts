@@ -1,43 +1,20 @@
-/**
- * Core algorithm to build pages from gallery items
- * Each page = 3 tiles (1 left + 2 right stacked)
- * Only 1 video per page, selected by closest to 9:16 ratio
- */
-
 import { GalleryItem, PageLayout } from '../types/gallery';
 import { VIDEO_SELECTION_LOOKAHEAD } from '../constants';
 import { findBestVideoInWindow } from './aspectRatioUtils';
 
-/**
- * Build pages from gallery items
- *
- * Algorithm:
- * 1. Loop through items
- * 2. For each page:
- *    a) Look ahead N items
- *    b) Find video closest to 9:16 ratio
- *    c) Fill left column with video (if found) or first image
- *    d) Fill right column with 2 images (or video if not enough images)
- *    e) Move to next page
- *
- * @param items - Gallery items from API
- * @param lookahead - Number of items to look ahead (default 12)
- * @returns Array of PageLayout objects
- */
 export function buildPages(
   items: GalleryItem[],
   lookahead: number = VIDEO_SELECTION_LOOKAHEAD,
 ): PageLayout[] {
-  // Defensive: empty input
   if (!items || items.length === 0) {
     return [];
   }
 
   const pages: PageLayout[] = [];
-  const remaining = [...items]; // Make a copy
+  const remaining = [...items];
 
   while (remaining.length > 0) {
-    // STEP 1: SELECT VIDEO FOR THIS PAGE
+    // Select video for this page
     let selectedVideo: GalleryItem | null = null;
     let selectedVideoIndex: number = -1;
 
@@ -62,7 +39,7 @@ export function buildPages(
       }
     }
 
-    // STEP 2: FILL COLUMN 1 (LEFT)
+    // Fill left column
     let left: GalleryItem;
 
     if (selectedVideo) {
@@ -72,30 +49,22 @@ export function buildPages(
       left = remaining.shift()!;
     }
 
-    // STEP 3: FILL COLUMN 2 (RIGHT - 2 stacked tiles)
+    // Fill right column
     let rightTop: GalleryItem;
     let rightBottom: GalleryItem;
 
     if (remaining.length >= 2) {
-      // We have at least 2 items, take them
       rightTop = remaining.shift()!;
       rightBottom = remaining.shift()!;
     } else if (remaining.length === 1) {
-      // Only 1 item left
       rightTop = remaining.shift()!;
-
-      // If we have unused selectedVideo, put in rightBottom
-      // (This means left was filled with something else)
-      // But this shouldn't happen with our logic above
       rightBottom = remaining.length > 0 ? remaining.shift()! : rightTop;
     } else {
-      // No items left - edge case
-      // Create empty tiles (shouldn't happen with normal data)
       rightTop = left;
       rightBottom = left;
     }
 
-    // STEP 4: CREATE PAGE
+    // Create page
     const page: PageLayout = {
       left,
       rightTop,
@@ -108,24 +77,20 @@ export function buildPages(
   return pages;
 }
 
-/**
- * Helper function to verify pages are built correctly
- * Use for testing/debugging
- */
-export function debugPages(pages: PageLayout[]): void {
-  console.log(`\n=== DEBUG: Built ${pages.length} pages ===`);
+// export function debugPages(pages: PageLayout[]): void {
+//   console.log(`Z=== DEBUG: Built ${pages.length} pages ===`);
 
-  pages.forEach((page, idx) => {
-    const leftType = page.left.type;
-    const rightTopType = page.rightTop.type;
-    const rightBottomType = page.rightBottom.type;
+//   pages.forEach((page, idx) => {
+//     const leftType = page.left.type;
+//     const rightTopType = page.rightTop.type;
+//     const rightBottomType = page.rightBottom.type;
 
-    console.log(
-      `Page ${
-        idx + 1
-      }: LEFT(${leftType}) | RIGHT_TOP(${rightTopType}) RIGHT_BOTTOM(${rightBottomType})`,
-    );
-  });
+//     console.log(
+//       `Page ${
+//         idx + 1
+//       }: LEFT(${leftType}) | RIGHT_TOP(${rightTopType}) RIGHT_BOTTOM(${rightBottomType})`,
+//     );
+//   });
 
-  console.log('=== END DEBUG ===\n');
-}
+//   console.log('=== END DEBUG ===\n');
+// }

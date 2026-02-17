@@ -1,97 +1,65 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Smart Hero Gallery (Alive)
 
-# Getting Started
+A high-performance, horizontally scrollable hero gallery built with React Native.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Setup Instructions
 
-## Step 1: Start Metro
+1. **Install dependencies**:
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+2. **iOS Setup** (macOS only):
 
-```sh
-# Using npm
-npm start
+   ```bash
+   cd ios && pod install && cd ..
+   ```
 
-# OR using Yarn
-yarn start
-```
+3. **Run the app**:
+   - **Android**: `npm run android`
+   - **iOS**: `npm run ios`
 
-## Step 2: Build and run your app
+## Implementation Details
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+### buildPages Logic
 
-### Android
+The `buildPages` function is a deterministic pure function that transforms the flat gallery array into a structured list of pages.
 
-```sh
-# Using npm
-npm run android
+- **One Video Per Page**: The algorithm scans a `lookahead` window (default 12) to find the video closest to the 9:16 aspect ratio.
+- **Order Preservation**: Items are processed in their API order. Reordering only occurs to pull the "best" video forward from the lookahead window.
+- **Page Structure**: Each page is a 2-column block with 1 hero tile and 2 stacked tiles.
 
-# OR using Yarn
-yarn android
-```
+### Progressive Loading & Fallbacks
 
-### iOS
+- **Images**: We use a chain of `Image.prefetch` calls: `preview` -> `processed` -> `original`. If the higher-quality version fails, the UI stays on the successful lower-quality version.
+- **Videos**:
+  - **Poster**: We load the poster using the same `preview` -> `processed` -> `original` chain.
+  - **Video File**: We attempt the `processed` mobile video first. If the `react-native-video` component reports an error, we catch it and automatically switch the source to the `original` video URL.
+  - **Retry**: If all video sources fail, a "Tap to Retry" overlay is shown.
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+### Performance Optimizations
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+- **FlatList Tuning**: Used `pagingEnabled`, `snapToInterval`, and `getItemLayout` for precise, native-feeling scrolling. `windowSize` and `initialNumToRender` are optimized for media-heavy lists.
+- **Memoization**: `GalleryPage` and `MediaTile` are wrapped in `React.memo` with stable callbacks to prevent unnecessary re-renders.
+- **Viewability Control**: `onViewableItemsChanged` triggers a 25% visibility threshold. Videos are only `paused={false}` when their page is visible, saving CPU and battery.
+- **Asset Prefetching**: Thumbnails are prefetched to ensure posters are ready before the user even reaches the page.
 
-```sh
-bundle install
-```
+### Smart Cover Rule
 
-Then, and every time you update your native dependencies, run:
+Media items use `resizeMode="cover"` within containers of specific aspect ratios. The `SmartHeroGallery` calculates Column 1 as a tall hero and Column 2 as two equal squares/rectangles. This ensures that only one axis is cropped significantly while the other fills the tile, preserving the "hero" feel without awkward blank spaces.
 
-```sh
-bundle exec pod install
-```
+### Features
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+- **Nudge**: A subtle arrow on Page 1 scrolls the user forward.
+- **Modal**: Full-screen carousel with horizontal navigation to view media in full detail.
+- **Page Indicator**: Dots at the bottom for quick navigation.
 
-```sh
-# Using npm
-npm run ios
+## Future Improvements
 
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+- **Animated Nudge**: Add a subtle bounce animation to the scroll hint.
+- **Video Prefetching**: Implement a more advanced buffer management for videos (e.g., pre-loading the next video file once current is 50% through).
+- **Dynamic Gaps**: Allowing users to customize tile spacing via a settings menu.
+- **Swipe for Modal**: Allow swiping down to close the full-screen modal.

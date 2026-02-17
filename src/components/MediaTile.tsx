@@ -1,8 +1,3 @@
-/**
- * Reusable tile component for single image or video
- * Handles progressive loading, error states, retry
- */
-
 import React, { useState, useCallback } from 'react';
 import {
   View,
@@ -35,27 +30,40 @@ const MediaTile = React.memo(
     onPress,
     onVideoError,
   }: MediaTileProps) => {
-    const { imageUrl, thumbnailUrl, isLoading, error, retry } =
-      useMediaLoader(item);
+    const {
+      imageUrl,
+      thumbnailUrl,
+      isLoading,
+      error,
+      retry,
+      fallbackToOriginal,
+    } = useMediaLoader(item);
     const [videoReady, setVideoReady] = useState(false);
     const [videoFailed, setVideoFailed] = useState(false);
+    const [didFallback, setDidFallback] = useState(false);
 
     const handleVideoLoad = useCallback(() => {
       setVideoReady(true);
     }, []);
 
     const handleVideoError = useCallback(() => {
-      setVideoFailed(true);
-      onVideoError?.();
-    }, [onVideoError]);
+      if (!didFallback) {
+        setDidFallback(true);
+        fallbackToOriginal();
+      } else {
+        setVideoFailed(true);
+        onVideoError?.();
+      }
+    }, [didFallback, fallbackToOriginal, onVideoError]);
 
     const handleRetry = useCallback(() => {
       setVideoFailed(false);
       setVideoReady(false);
+      setDidFallback(false);
       retry();
     }, [retry]);
 
-    // IMAGE TILE
+    // Image tile
     if (item.type === 'image') {
       return (
         <TouchableOpacity

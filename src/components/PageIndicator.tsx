@@ -1,8 +1,3 @@
-/**
- * Page indicator dots showing current page
- * EXTRA CREDIT FEATURE
- */
-
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 

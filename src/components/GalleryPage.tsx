@@ -1,9 +1,3 @@
-/**
- * Single page component (2-column layout)
- * Left: 1 large tile (hero)
- * Right: 2 stacked tiles (equal height)
- */
-
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { GalleryItem } from '../types/gallery';
@@ -34,7 +28,6 @@ const GalleryPage = React.memo(
     left,
     rightTop,
     rightBottom,
-    pageIndex,
     isVisible,
     onItemPress,
     onVideoError,
@@ -46,7 +39,7 @@ const GalleryPage = React.memo(
           { width: PAGE_WIDTH, height: PAGE_HEIGHT, padding: PADDING },
         ]}
       >
-        {/* LEFT COLUMN - HERO TILE */}
+        {/* Left column */}
         <View
           style={[
             styles.leftColumn,
@@ -67,14 +60,14 @@ const GalleryPage = React.memo(
           />
         </View>
 
-        {/* RIGHT COLUMN - STACKED TILES */}
+        {/* Right column */}
         <View
           style={[
             styles.rightColumn,
             { width: RIGHT_COLUMN_WIDTH, height: LEFT_TILE_HEIGHT },
           ]}
         >
-          {/* RIGHT TOP */}
+          {/* Right top */}
           <View
             style={[
               styles.rightTile,
@@ -91,7 +84,7 @@ const GalleryPage = React.memo(
             />
           </View>
 
-          {/* RIGHT BOTTOM */}
+          {/* Right bottom */}
           <View style={[styles.rightTile, { height: RIGHT_TILE_HEIGHT }]}>
             <MediaTile
               item={rightBottom}

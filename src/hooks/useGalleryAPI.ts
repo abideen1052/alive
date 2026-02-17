@@ -1,7 +1,3 @@
-/**
- * Custom hook to fetch gallery data from API
- */
-
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { GalleryItem } from '../types/gallery';
@@ -25,12 +21,12 @@ export function useGalleryAPI(): UseGalleryAPIResult {
       try {
         setLoading(true);
         setError(null);
-        console.log(
-          'Z===>1API_ENDPOINT',
-          JSON.stringify(API_ENDPOINT, null, 2),
-        );
+        // console.log(
+        //   'Z===>1API_ENDPOINT',
+        //   JSON.stringify(API_ENDPOINT, null, 2),
+        // );
         const response = await axios.get(API_ENDPOINT);
-        console.log('Z===>2Response', JSON.stringify(response, null, 2));
+        //console.log('Z===>2Response', JSON.stringify(response, null, 2));
         const items = response.data?.data?.gallery;
 
         if (!items || !Array.isArray(items)) {

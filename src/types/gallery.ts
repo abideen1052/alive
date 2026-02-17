@@ -1,11 +1,7 @@
-/**
- * All TypeScript interfaces and types for the gallery
- */
-
 export interface GalleryItem {
   _id: string;
   type: 'image' | 'video';
-  src: string; // Filename only, not full URL
+  src: string;
   alt?: string;
   aspectRatio?: number;
 }
@@ -31,5 +27,5 @@ export interface MediaLoadState {
 
 export interface FullScreenModalItem {
   item: GalleryItem;
-  globalIndex: number; // Index in entire gallery (for prev/next navigation)
+  globalIndex: number;
 }

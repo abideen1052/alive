@@ -1,16 +1,5 @@
-/**
- * Hint button on right edge of Page 1
- * Nudges user to scroll to next page
- */
-
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  Animated,
-} from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, Animated } from 'react-native';
 import { COLORS } from '../constants';
 
 interface ScrollNudgeProps {
